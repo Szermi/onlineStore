@@ -1,5 +1,6 @@
 import os
 
+from django.conf import settings
 ENVIRONMENT = os.getenv('ENVIRONMENT', 'development')
 
 DEBUG = True
@@ -15,6 +16,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',    
     'django.contrib.sites',
+
 
     'allauth',
     'allauth.account',
@@ -72,7 +74,7 @@ DATABASES = {
 }
 
 if ENVIRONMENT == 'production':
-    DEBUG = False
+    DEBUG = True
     SECRET_KEY = os.getenv('SECRET_KEY')
     SESSION_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
@@ -96,5 +98,11 @@ AUTHENTICATION_BACKENDS = [
 ]
 SITE_ID = 1
 LOGIN_REDIRECT_URL = '/'
+SIGNUP_REDIRECT_URL = '/'
+DEFAULT_FROM_EMAIL = 'you@domain.com'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+SOCIALACCOUNT_ENABLED = 'allauth.socialaccount'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 #CRISPY FORMS
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

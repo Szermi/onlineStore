@@ -2,20 +2,36 @@
 
 {% load i18n %}
 
-{% block head_title %}{% trans "Sign Out" %}{% endblock %}
+{% block head_title %}{% trans "Wyloguj się" %}{% endblock %}
 
 {% block content %}
-<h1>{% trans "Sign Out" %}</h1>
 
-<p>{% trans 'Are you sure you want to sign out?' %}</p>
+  <main>
+    <div class="container">
+      <!--Section: Products v.3-->
+      <section class="mb-4">
 
-<form method="post" action="{% url 'account_logout' %}">
-  {% csrf_token %}
-  {% if redirect_field_value %}
-  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
-  {% endif %}
-  <button type="submit">{% trans 'Sign Out' %}</button>
-</form>
+        <!--Grid row-->
+        <div class="row wow fadeIn">
+          <div class="col-4 offset-4">
+
+            <br />
+            <h1>{% trans "Wyloguj się" %}</h1>
+
+            <p>{% trans 'Czy na pewno chcesz się wylogować?' %}</p>
+
+            <form method="post" action="{% url 'account_logout' %}">
+              {% csrf_token %}
+              {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+              {% endif %}
+              <button type="submit" class="btn btn-primary">{% trans 'Wyloguj się' %}</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
 
 
 {% endblock %}
