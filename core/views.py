@@ -61,7 +61,7 @@ class CheckoutView(View):
                 # save_info = form.cleaned_data.get('save_info')
                 payment_option = form.cleaned_data.get('payment_option')
                 billing_address = BillingAddress(
-                    user=self.request.use,
+                    user=self.request.user,
                     street_address=street_address,
                     apartment_address=apartment_address,
                     country=country,
@@ -70,7 +70,14 @@ class CheckoutView(View):
                 billing_address.save()
                 order.billing_address = billing_address
                 order.save()
-                return redirect('core:checkout')
+
+                if payment_option == 'S':
+                    return redirect('core:payment', payment_option='stripe')
+                elif payment_option == 'P':
+                    return redirect('core:payment', payment_option='paypal')
+                else:
+                    messages.warning(self.request, "Błąd wyboru metody płatności")
+                    return redirect('core:checkout')
 
             messages.warning(self.request, "Nie udało się dodać danych.")
             return redirect('core:checkout')
@@ -81,8 +88,11 @@ class CheckoutView(View):
 
 class PaymentView(View):
     def get(self, *args, **kwargs):
-        #order
-        return render(self.request, "payment.html")
+        order = Order.objects.get(user=self.request.user, ordered=False)
+        context = {
+            'order': order
+        }
+        return render(self.request, "payment.html", context)
 
     def post(self, *args, **kwargs):
         order = Order.objects.get(user=self.request.user, ordered=False)
