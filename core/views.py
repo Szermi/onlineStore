@@ -17,7 +17,7 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 class HomeView(ListView):
     model = Item
-    paginate_by = 2
+    paginate_by = 8
     template_name = "home.html"
 
 
