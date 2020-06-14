@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView, View
 from django.utils import timezone
-from .models import Item, OrderItem, Order
+from .models import Item, OrderItem, Order, BillingAddress
 from .forms import CheckoutForm
 from django.contrib import messages
 
@@ -38,7 +38,7 @@ class ItemDetailView(DetailView):
 
 class CheckoutView(View):
     def get(self, *args, **kwargs):
-        #form
+        # form
         form = CheckoutForm()
         context = {
             'form': form
@@ -47,9 +47,35 @@ class CheckoutView(View):
 
     def post(self, *args, **kwargs):
         form = CheckoutForm(self.request.POST or None)
-        if form.is_valid():
-            print("The form is valid")
+        try:
+            order = Order.objects.get(user=self.request.user, ordered=False)
+            if form.is_valid():
+                street_address = form.cleaned_data.get('street_address')
+                apartment_address = form.cleaned_data.get('apartment_address')
+                country = form.cleaned_data.get('country')
+                zip = form.cleaned_data.get('zip')
+                # same_shipping_address = form.cleaned_data.get('same_shipping_address')
+                # save_info = form.cleaned_data.get('save_info')
+                payment_option = form.cleaned_data.get('payment_option')
+                billing_address = BillingAddress(
+                    user=self.request.use,
+                    street_address=street_address,
+                    apartment_address=apartment_address,
+                    country=country,
+                    zip=zip
+                )
+                billing_address.save()
+                order.billing_address = billing_address
+                order.save()
+                return redirect('core:checkout')
+
+            messages.warning(self.request, "Nie udało się dodać danych.")
             return redirect('core:checkout')
+        except ObjectDoesNotExist:
+            messages.error(self.request, "Nie masz aktywnego zamówienia")
+            return redirect("core:order-summary")
+
+
 
 
 def product(request):
@@ -114,8 +140,6 @@ def remove_from_cart(request, slug):
     else:
         messages.info(request, "Nie masz aktywnego zamówenia.")
         return redirect("core:product", slug=slug)
-
-
 
 
 @login_required
